@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Login/Register</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+    }
+
+    .main-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .form-container {
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      width: 350px;
+    }
+
+    .form-container h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .form-container form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-container input,
+    .form-container select,
+    .form-container textarea,
+    .form-container button {
+      margin-bottom: 10px;
+      padding: 8px;
+      font-size: 14px;
+    }
+
+    .form-container button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .form-container button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="main-wrapper">
+    <div class="form-container">
+      <h2>User Registration</h2>
+      <form id="userRegisterForm">
+        <input type="email" id="userEmail" placeholder="Email" required>
+        <input type="text" id="userUsername" placeholder="Username" required>
+        <input type="text" id="userFirstName" placeholder="First Name" required>
+        <input type="text" id="userLastName" placeholder="Last Name" required>
+        <input type="password" id="userPassword" placeholder="Password" required>
+        <input type="password" id="userConfirmPassword" placeholder="Confirm Password" required>
+
+        <label for="userCountry">Country / Region</label>
+        <select id="userCountry" required>
+          <option value="">Select your country</option>
+        </select>
+
+        <input type="text" id="userContact" placeholder="Emergency Contact Number" required>
+        <input type="text" id="productId" placeholder="Product ID">
+        <textarea id="userExtraInfo1" placeholder="Address"></textarea>
+        <textarea id="userExtraInfo2" placeholder="DOB"></textarea>
+        <textarea id="userExtraInfo3" placeholder="Emergency contact person mobile number"></textarea>
+        <button type="submit">Register</button>
+      </form>
+    </div>
+
+    <div class="form-container">
+      <h2>User Login</h2>
+      <form id="userLoginForm">
+        <input type="email" id="loginEmail" placeholder="Email" required>
+        <input type="password" id="loginPassword" placeholder="Password" required>
+        <button type="submit">Login</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let userLocation = { latitude: null, longitude: null };
+    let selectedCountryCode = "";
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((pos) => {
+        userLocation.latitude = pos.coords.latitude;
+        userLocation.longitude = pos.coords.longitude;
+      });
+    }
+
+    const countries = [
+      { name: "United States", code: "+1" },
+      { name: "United Kingdom", code: "+44" },
+      { name: "India", code: "+91" },
+      { name: "Germany", code: "+49" },
+      { name: "Canada", code: "+1" },
+      { name: "Australia", code: "+61" },
+      { name: "Bangladesh", code: "+880" },
+      { name: "France", code: "+33" },
+      { name: "China", code: "+86" },
+      { name: "Japan", code: "+81" }
+    ];
+
+    const countrySelect = document.getElementById('userCountry');
+    countries.forEach(c => {
+      const option = document.createElement('option');
+      option.value = c.code;
+      option.textContent = `${c.name} (${c.code})`;
+      countrySelect.appendChild(option);
+    });
+
+    countrySelect.addEventListener('change', () => {
+      selectedCountryCode = countrySelect.value;
+      const contactField = document.getElementById('userContact');
+      if (!contactField.value.startsWith(selectedCountryCode)) {
+        contactField.value = selectedCountryCode;
+      }
+    });
+
+    document.getElementById('userContact').addEventListener('focus', () => {
+      if (selectedCountryCode) {
+        const contactField = document.getElementById('userContact');
+        if (!contactField.value.startsWith(selectedCountryCode)) {
+          contactField.value = selectedCountryCode;
+        }
+      }
+    });
+
+    document.getElementById('userRegisterForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const data = {
+        email: document.getElementById('userEmail').value,
+        username: document.getElementById('userUsername').value,
+        firstName: document.getElementById('userFirstName').value,
+        lastName: document.getElementById('userLastName').value,
+        password: document.getElementById('userPassword').value,
+        confirmPassword: document.getElementById('userConfirmPassword').value,
+        country: countrySelect.options[countrySelect.selectedIndex].text,
+        contact: document.getElementById('userContact').value,
+        productId: document.getElementById('productId').value,
+        extraInfo: {
+          address: document.getElementById('userExtraInfo1').value,
+          dob: document.getElementById('userExtraInfo2').value,
+          emergencyMobile: document.getElementById('userExtraInfo3').value
+        },
+        location: userLocation
+      };
+
+      const res = await fetch('http://localhost:3000/api/user/register', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+      alert(result.message);
+    });
+
+    document.getElementById('userLoginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const data = {
+        email: document.getElementById('loginEmail').value,
+        password: document.getElementById('loginPassword').value
+      };
+
+      const res = await fetch('http://localhost:3000/api/user/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+      alert(result.message);
+    });
+  </script>
+</body>
+</html>

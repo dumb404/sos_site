@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Select Login Type</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 100px;
+    }
+    select, button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Welcome to the SOS Portal</h2>
+  <p>Please select your login type:</p>
+
+  <select id="loginType">
+    <option value="">-- Choose Login Type --</option>
+    <option value="user">User Login</option>
+    <option value="admin">Admin Login</option>
+  </select>
+
+  <br><br>
+  <button onclick="redirectToLogin()">Continue</button>
+
+  <script>
+    function redirectToLogin() {
+      const loginType = document.getElementById("loginType").value;
+      if (loginType === "user") {
+        window.location.href = "code.html";   // User login page
+      } else if (loginType === "admin") {
+        window.location.href = "code2.html";  // Admin login page
+      } else {
+        alert("Please select a login type.");
+      }
+    }
+  </script>
+
+</body>
+</html>
